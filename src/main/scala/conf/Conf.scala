@@ -7,5 +7,11 @@ import com.typesafe.config.ConfigFactory
   */
 object Conf {
   lazy val conf = ConfigFactory.load()
+
+  lazy val defaultAuctionSearchName = conf.getString("auctionSearch.name")
+
   lazy val defaultAuctionTime = conf.getInt("auction.defaultTime")
+  lazy val defaultBidsPerBuyer = conf.getInt("buyer.defaultBids")
+  lazy val defaultBidFrequency = conf.getInt("buyer.defaultFrequency")
+  lazy val defaultBuyerLaziness = conf.getInt("buyer.defaultLaziness")
 }
