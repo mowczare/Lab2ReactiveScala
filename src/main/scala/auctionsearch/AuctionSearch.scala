@@ -16,10 +16,7 @@ class AuctionSearch extends Actor with ActorLogging {
       auctions = auctions + (name -> sender)
 
     case FindAuctions(regex) =>
-      //todo fix regexp
-      val a = auctions.keys.filter(s => s.matches(regex)).map(auctions).toList
-      println(a)
-      sender ! a
+      sender ! auctions.keys.filter(s => s contains regex).map(auctions).toList
   }
 }
 

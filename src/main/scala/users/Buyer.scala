@@ -31,12 +31,11 @@ class Buyer(auctionRegex: String) extends Actor with ActorLogging {
 
   override def receive: Receive = {
     case BidAuction =>
-      log.info("Trying to bid")
       auctionsFutures.map { auctions =>
         auctions.foreach { auction =>
           if (random.nextBoolean()) {
             (auction ? GetCurrentAuctionValue).mapTo[Int].map { value =>
-              log.info(s"Bidding auction $auction")
+              log.info(s"Bidding auction $auction with value: ${value+1}")
               auction ! Bid(value + 1)
             }
           }

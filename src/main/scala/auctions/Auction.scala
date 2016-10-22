@@ -3,6 +3,7 @@ package auctions
 import actions._
 import akka.actor.{Actor, ActorLogging, ActorRef, PoisonPill, Props}
 import conf.Conf
+import messages.GetCurrentAuctionValue
 
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -37,6 +38,9 @@ class Auction(name: String, seller: ActorRef) extends Actor with ActorLogging {
       currentPrice = Some(value)
       currentWinner = Some(sender)
       context become activated
+
+    case GetCurrentAuctionValue =>
+      sender ! 0
   }
 
   def activated: Receive = {
@@ -63,6 +67,9 @@ class Auction(name: String, seller: ActorRef) extends Actor with ActorLogging {
         log.info(s"Auction finished. Winner: $winner, price: $price")
       }
       context become sold
+
+    case GetCurrentAuctionValue =>
+      currentPrice.foreach(price => sender ! price)
   }
 
   def sold: Receive = {

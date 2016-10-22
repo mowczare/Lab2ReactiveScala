@@ -8,6 +8,7 @@ import com.typesafe.config.ConfigFactory
 object Conf {
   lazy val conf = ConfigFactory.load()
 
+  lazy val defaultAuctionSystemName = conf.getString("auctionSystem.name")
   lazy val defaultAuctionSearchName = conf.getString("auctionSearch.name")
 
   lazy val defaultAuctionTime = conf.getInt("auction.defaultTime")

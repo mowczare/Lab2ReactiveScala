@@ -37,7 +37,7 @@ class Auction(name: String, seller: ActorRef) extends FSM[State, Data] {
   when(Activated) {
     case Event(Bid(value), oldData@CurrentWinnerData(price, _)) =>
       if (price<value) {
-        log.info(s"Bid $value accepted.")
+        log.info(s"Bid $value accepted from $sender.")
         stay() using CurrentWinnerData(value, sender)
       }
       else {
@@ -54,11 +54,13 @@ class Auction(name: String, seller: ActorRef) extends FSM[State, Data] {
 
   when(Sold) {
     case Event(DeleteItem, _) =>
+      log.info("Closing auction")
       stop()
   }
 
   when(Ignored) {
     case Event(DeleteItem, NoWinnerData) =>
+      log.info("Closing auction")
       stop()
 
     case Event(Relist, NoWinnerData) =>

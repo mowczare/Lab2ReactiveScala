@@ -4,7 +4,7 @@ package actions
   * Created by neo on 21.10.16.
   */
 
-trait Action
+sealed trait Action
 
 sealed trait AuctionAction extends Action
 

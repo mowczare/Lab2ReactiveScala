@@ -7,10 +7,8 @@ import users.{Buyer, Seller}
   * Created by neo on 22.10.16.
   */
 object Main extends App {
-  val system = ActorSystem("auctionSystem")
-
+  val system = ActorSystem(Conf.defaultAuctionSystemName)
   val auctionSearch = system.actorOf(AuctionSearch.props, Conf.defaultAuctionSearchName)
-  println(auctionSearch.path)
 
   val seller1 = system.actorOf(Seller.props(List("Auto Czarne Audi", "Auto Czerwona Beemka", "Auto Zielony Fiat")), "seller1")
   val seller2 = system.actorOf(Seller.props(List("PC Lenovo", "PC Asus")), "seller2")

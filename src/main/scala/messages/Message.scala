@@ -4,7 +4,7 @@ package messages
   * Created by neo on 22.10.16.
   */
 
-trait Message
+sealed trait Message
 
 case object GetCurrentAuctionValue extends Message
 
