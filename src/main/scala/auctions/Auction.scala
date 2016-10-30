@@ -4,6 +4,7 @@ import actions._
 import akka.actor.{Actor, ActorLogging, ActorRef, PoisonPill, Props}
 import conf.Conf
 import messages.GetCurrentAuctionValue
+import users.Buyer.RaiseBid
 
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -45,13 +46,18 @@ class Auction(name: String, seller: ActorRef) extends Actor with ActorLogging {
 
   def activated: Receive = {
     case Bid(value) =>
-      currentPrice.foreach { price =>
-        if (price<value) {
+      for {
+        price <- currentPrice
+        winner <- currentWinner
+      } yield {
+        if (price < value) {
           log.info(s"Bid $value accepted from $sender")
+          winner ! RaiseBid(value)
           currentPrice = Some(value)
           currentWinner = Some(sender)
         }
         else {
+          sender ! RaiseBid(price)
           log.warning(s"Bid $value is smaller than current price of this auction ($price).")
         }
       }

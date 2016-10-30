@@ -1,13 +1,14 @@
 package auctions.fsm
 
-import akka.actor.{ActorRef, FSM, Props}
-import conf.Conf
 import actions._
+import akka.actor.{ActorRef, FSM, Props}
 import auctions.fsm.Auction._
+import conf.Conf
 import messages.{GetCurrentAuctionValue, GetCurrentWinner}
+import users.Buyer.RaiseBid
 
-import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration._
 
 /**
   * Created by neo on 21.10.16.
@@ -35,13 +36,15 @@ class Auction(name: String, seller: ActorRef) extends FSM[State, Data] {
   }
 
   when(Activated) {
-    case Event(Bid(value), oldData@CurrentWinnerData(price, _)) =>
+    case Event(Bid(value), oldData@CurrentWinnerData(price, oldWinner)) =>
       if (price<value) {
         log.info(s"Bid $value accepted from $sender.")
+        oldWinner ! RaiseBid(value)
         stay() using CurrentWinnerData(value, sender)
       }
       else {
         log.warning(s"Bid $value is smaller than current price of this auction ($price).")
+        sender ! RaiseBid(price)
         stay() using oldData
       }
 
