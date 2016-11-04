@@ -1,12 +1,15 @@
 package users
 
-import akka.actor.ActorSystem
+import akka.actor.{ActorRef, ActorSystem}
+import akka.pattern.ask
 import akka.testkit.{ImplicitSender, TestKitBase}
 import akka.util.Timeout
 import org.scalatest.{FlatSpec, Matchers}
-import users.Seller.GetNumberOfAuctions
+import users.Seller.{GetAuctions, GetNumberOfAuctions}
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
+import scala.language.postfixOps
 
 
 /**
@@ -19,7 +22,15 @@ class AuctionSellerTest extends FlatSpec with Matchers with TestKitBase with Imp
   val seller = system.actorOf(Seller.props(auctions), "testSeller")
   implicit val timeout: Timeout = 3 seconds
 
-  "Seller" should "create 3 Auction actors with proper names" in {
+  "Seller" should "create 3 Auction actors" in {
+    (seller ? GetAuctions).mapTo[List[ActorRef]].map { auctions =>
+      auctions.foreach { auction =>
+        auction.path.parent shouldEqual seller
+      }
+    }
+  }
+
+  it should "create 3 Auction actors with proper names" in {
     seller ! GetNumberOfAuctions
     expectMsg(3)
   }

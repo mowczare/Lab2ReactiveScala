@@ -2,15 +2,15 @@ package auctionsearch
 
 import actions.RegisterAuction
 import akka.actor.{ActorRef, ActorSystem}
-import akka.testkit.TestKitBase
-import org.scalatest.{FlatSpec, Matchers}
 import akka.pattern.ask
+import akka.testkit.TestKitBase
 import akka.util.Timeout
 import messages.FindAuctions
-
-import scala.concurrent.duration._
+import org.scalatest.{FlatSpec, Matchers}
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration._
+import scala.language.postfixOps
 
 
 /**

@@ -1,9 +1,9 @@
 package users
 
 import actions.{Notify, StartAuction}
-import akka.actor.{Actor, ActorLogging, ActorRef, Identify, Props}
+import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import auctions.fsm.Auction
-import users.Seller.GetNumberOfAuctions
+import users.Seller.{GetAuctions, GetNumberOfAuctions}
 import utils.StringUtils
 
 /**
@@ -27,12 +27,15 @@ class Seller(auctionNames: List[String]) extends Actor with ActorLogging {
       log.info(s"Auction $sender has been finished with value of $value")
 
     case GetNumberOfAuctions =>
-      println(sender)
       sender() ! auctions.length
+
+    case GetAuctions =>
+      sender() ! auctions
   }
 }
 
 object Seller {
   case object GetNumberOfAuctions
+  case object GetAuctions
   def props(auctionNames: List[String]): Props = Props(new Seller(auctionNames))
 }

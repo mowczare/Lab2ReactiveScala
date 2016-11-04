@@ -9,6 +9,7 @@ import users.Buyer.RaiseBid
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
+import scala.language.postfixOps
 
 /**
   * Created by neo on 21.10.16.

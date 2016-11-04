@@ -36,6 +36,8 @@ class AuctionBuyerTest extends FlatSpec with Matchers with TestKitBase with Impl
 
   it should "no more reraise when auction is bid to 10 or more" in {
     auction.send(buyer, RaiseBid(10))
-    auction.expectNoMsg()
+    auction.expectNoMsg
+    auction.send(buyer, RaiseBid(12))
+    auction.expectNoMsg
   }
 }

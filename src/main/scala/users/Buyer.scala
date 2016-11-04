@@ -8,10 +8,11 @@ import conf.Conf
 import messages.{FindAuctions, GetCurrentAuctionValue}
 import users.Buyer.{BidAuction, RaiseBid, random}
 
-import scala.concurrent.Future
-import scala.util.Random
-import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
+import scala.concurrent.duration._
+import scala.language.postfixOps
+import scala.util.Random
 
 /**
   * Created by neo on 22.10.16.
