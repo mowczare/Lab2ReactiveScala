@@ -1,7 +1,8 @@
 package auctions
 
 import actions._
-import akka.actor.{Actor, ActorLogging, ActorRef, PoisonPill, Props}
+import akka.actor.{ActorLogging, ActorRef, PoisonPill, Props}
+import akka.persistence.PersistentActor
 import conf.Conf
 import messages.GetCurrentAuctionValue
 import users.Buyer.RaiseBid
@@ -13,13 +14,17 @@ import scala.language.postfixOps
 /**
   * Created by neo on 21.10.16.
   */
-class Auction(name: String, seller: ActorRef) extends Actor with ActorLogging {
+class Auction(name: String, seller: ActorRef) extends PersistentActor with ActorLogging {
+
+  override def persistenceId: String = s"Auction:$name"
 
   lazy val auctionSearch = context.actorSelection(s"/user/${Conf.defaultAuctionSearchName}")
+
   var currentPrice: Option[Int] = None
+
   var currentWinner: Option[ActorRef] = None
 
-  override def receive: Receive = idle
+  override def receiveCommand: Receive = idle
 
   def idle: Receive = {
     case StartAuction =>
@@ -95,6 +100,8 @@ class Auction(name: String, seller: ActorRef) extends Actor with ActorLogging {
       context.system.scheduler.scheduleOnce(Conf.defaultAuctionTime milliseconds, self, FinishAuction)
       context become created
   }
+
+  override def receiveRecover: Receive = ???
 
 }
 
