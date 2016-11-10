@@ -2,7 +2,7 @@ package users
 
 import actions.{Notify, StartAuction}
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
-import auctions.fsm.Auction
+import auctions.Auction
 import users.Seller.{GetAuctions, GetNumberOfAuctions}
 import utils.StringUtils
 

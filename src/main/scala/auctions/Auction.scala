@@ -6,6 +6,7 @@ import akka.persistence.{PersistentActor, RecoveryCompleted}
 import conf.Conf
 import messages.GetCurrentAuctionValue
 import users.Buyer.RaiseBid
+import utils.StringUtils
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
@@ -16,13 +17,17 @@ import scala.language.postfixOps
   */
 class Auction(name: String, seller: ActorRef) extends PersistentActor with ActorLogging {
 
-  override def persistenceId: String = s"Auction:$name"
+  override def persistenceId: String = s"Auction:${StringUtils.makeActorName(name)}"
 
   lazy val auctionSearch = context.actorSelection(s"/user/${Conf.defaultAuctionSearchName}")
+
+  var recoveryStartTimeStamp: Option[Long] = None
 
   var timeStamps: List[ScheduleTimeStamp] = List()
 
   var currentTimeStamp: Long = System.currentTimeMillis()
+
+  var eventCounter = 0
 
   var currentPrice: Option[Int] = None
 
@@ -120,31 +125,39 @@ class Auction(name: String, seller: ActorRef) extends PersistentActor with Actor
   override def receiveRecover: Receive = {
 
     case AuctionStarted(timeStamp) =>
+      startRecoveryTimeStamp()
       currentTimeStamp = timeStamp
       context become created
 
     case AuctionIgnored(timeStamp) =>
+      startRecoveryTimeStamp()
       currentTimeStamp = timeStamp
       context become ignored
 
     case BidEvent(value, winner, timeStamp) =>
+      startRecoveryTimeStamp()
       currentTimeStamp = timeStamp
       currentPrice = Some(value)
       currentWinner = Some(winner)
       context become activated
 
     case AuctionSold(timeStamp) =>
+      startRecoveryTimeStamp()
       currentTimeStamp = timeStamp
       context become sold
 
     case Relisted(timeStamp) =>
+      startRecoveryTimeStamp()
       currentTimeStamp = timeStamp
       context become created
 
     case Scheduled(timeStamp, command) =>
+      startRecoveryTimeStamp()
       timeStamps ::= ScheduleTimeStamp(timeStamp, command)
 
     case RecoveryCompleted =>
+      startRecoveryTimeStamp()
+      log.info(s"\n\n$$$$RECOVERY COMPLETED: time: ${timeStamp-recoveryStartTimeStamp.getOrElse(timeStamp)} events recovered: $eventCounter\n\n")
       for {
         scheduledTimeStamp <- timeStamps
       } yield {
@@ -162,6 +175,11 @@ class Auction(name: String, seller: ActorRef) extends PersistentActor with Actor
   }
 
   private def timeStamp = System.currentTimeMillis()
+
+  private def startRecoveryTimeStamp() = {
+    recoveryStartTimeStamp = recoveryStartTimeStamp.orElse(Some(timeStamp))
+    eventCounter += 1
+  }
 
 }
 
