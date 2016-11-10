@@ -43,6 +43,7 @@ class Buyer(auctionRegex: String, limit: Int) extends Actor with ActorLogging {
     case RaiseBid(value) =>
       if (value < limit) {
         log.info(s"Last bid raised! Bidding auction $sender with value: ${value+1}")
+        Thread.sleep(500)
         sender ! Bid(value + 1)
       }
       else {
