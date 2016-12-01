@@ -5,6 +5,7 @@ import akka.actor.{ActorLogging, ActorRef, PoisonPill, Props}
 import akka.persistence.{PersistentActor, RecoveryCompleted}
 import conf.Conf
 import messages.GetCurrentAuctionValue
+import notifier.Notifier
 import users.Buyer.RaiseBid
 import utils.StringUtils
 
@@ -20,6 +21,8 @@ class Auction(name: String, seller: ActorRef) extends PersistentActor with Actor
   override def persistenceId: String = s"Auction:${StringUtils.makeActorName(name)}"
 
   lazy val auctionSearch = context.actorSelection(s"/user/${Conf.defaultAuctionSearchName}")
+
+  lazy val notifier = context.actorSelection(s"/user/${Conf.defaultNotifierName}")
 
   var recoveryStartTimeStamp: Option[Long] = None
 
@@ -54,12 +57,13 @@ class Auction(name: String, seller: ActorRef) extends PersistentActor with Actor
       }
 
     case Bid(value) =>
-      log.info(s"Bid $value accepted from $sender")
+      log.info(s"Bid $value accepted from $sender, notification sent")
       persist(BidEvent(value, sender, timeStamp)) { event =>
         currentPrice = Some(value)
         currentWinner = Some(sender)
         context become activated
       }
+      notifier ! Notifier.Notify(name, sender, value)
 
     case GetCurrentAuctionValue =>
       sender ! 0
@@ -72,8 +76,9 @@ class Auction(name: String, seller: ActorRef) extends PersistentActor with Actor
         winner <- currentWinner
       } yield {
         if (price < value) {
-          log.info(s"Bid $value accepted from $sender")
+          log.info(s"Bid $value accepted from $sender, notification sent")
           winner ! RaiseBid(value)
+          notifier ! Notifier.Notify(name, sender, value)
           persist(BidEvent(value, sender, timeStamp)) { event =>
             currentPrice = Some(value)
             currentWinner = Some(sender)
@@ -93,6 +98,7 @@ class Auction(name: String, seller: ActorRef) extends PersistentActor with Actor
       } yield {
         winner ! Notify(price)
         seller ! Notify(price)
+        notifier ! Notifier.Notify(name, winner, price)
         log.info(s"Auction finished. Winner: $winner, price: $price")
       }
       persist(AuctionSold, timeStamp) { event =>
