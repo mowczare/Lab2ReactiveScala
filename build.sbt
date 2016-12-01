@@ -1,15 +1,16 @@
 name := "Lab2ReactiveScala"
 
-version := "1.1"
+version := "1.4"
 
-scalaVersion := "2.11.8"
+scalaVersion := "2.12.0"
 
-lazy val akkaVersion = "2.4.11"
+lazy val akkaVersion = "2.4.12"
 
 libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-actor" % akkaVersion,
   "com.typesafe.akka" %% "akka-testkit" % akkaVersion % "test",
   "com.typesafe.akka" %% "akka-persistence" % akkaVersion,
+  "com.typesafe.akka" %% "akka-remote" % akkaVersion,
   "org.scalatest" %% "scalatest" % "3.0.0" % "test",
   "org.iq80.leveldb" % "leveldb" % "0.7",
   "org.fusesource.leveldbjni" % "leveldbjni-all" % "1.8",

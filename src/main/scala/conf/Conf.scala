@@ -9,7 +9,13 @@ object Conf {
   lazy val conf = ConfigFactory.load()
 
   lazy val defaultAuctionSystemName = conf.getString("auctionSystem.name")
+  lazy val defaultRemoteAuctionPublisherName = conf.getString("remoteAuctionPublisher.name")
   lazy val defaultAuctionSearchName = conf.getString("auctionSearch.name")
+  lazy val defaultNotifierName = conf.getString("notifier.name")
+
+  lazy val defaultAuctionSystemConfig = conf.getConfig("auctionSystemServer").withFallback(conf)
+  lazy val defaultRemoteAuctionPublisherServerConfig = conf.getConfig("remoteAuctionPublisherServer")
+    .withFallback(conf)
 
   lazy val defaultAuctionTime = conf.getInt("auction.defaultTime")
   lazy val defaultBidsPerBuyer = conf.getInt("buyer.defaultBids")
