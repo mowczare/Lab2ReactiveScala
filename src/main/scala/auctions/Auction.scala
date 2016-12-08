@@ -20,7 +20,7 @@ class Auction(name: String, seller: ActorRef) extends PersistentActor with Actor
 
   override def persistenceId: String = s"Auction:${StringUtils.makeActorName(name)}"
 
-  lazy val auctionSearch = context.actorSelection(s"/user/${Conf.defaultAuctionSearchName}")
+  lazy val masterSearch = context.actorSelection(s"/user/${Conf.defaultMasterSearchName}")
 
   lazy val notifier = context.actorSelection(s"/user/${Conf.defaultNotifierName}")
 
@@ -42,7 +42,7 @@ class Auction(name: String, seller: ActorRef) extends PersistentActor with Actor
     case StartAuction =>
       log.info("Starting auction")
       schedule(FinishAuction)
-      auctionSearch ! RegisterAuction(name)
+      masterSearch ! RegisterAuction(name)
       persist(AuctionStarted(timeStamp)) {
         event => context become created
       }

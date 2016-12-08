@@ -2,6 +2,7 @@ package auctionsearch
 
 import actions.RegisterAuction
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
+import auctionsearch.AuctionSearch.AckRegister
 import messages.FindAuctions
 
 /**
@@ -14,6 +15,7 @@ class AuctionSearch extends Actor with ActorLogging {
   override def receive: Receive = {
     case RegisterAuction(name) =>
       auctions = auctions + (name -> sender)
+      sender ! AckRegister
 
     case FindAuctions(regex) =>
       sender ! auctions.keys.filter(s => s contains regex).map(auctions).toList
@@ -22,4 +24,5 @@ class AuctionSearch extends Actor with ActorLogging {
 
 object AuctionSearch {
   def props = Props[AuctionSearch]
+  case object AckRegister
 }

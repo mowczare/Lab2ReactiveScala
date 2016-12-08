@@ -4,6 +4,8 @@ version := "1.4"
 
 scalaVersion := "2.12.0"
 
+parallelExecution := false
+
 lazy val akkaVersion = "2.4.12"
 
 libraryDependencies ++= Seq(

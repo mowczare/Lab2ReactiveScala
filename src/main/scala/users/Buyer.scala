@@ -20,8 +20,8 @@ import scala.util.Random
 class Buyer(auctionRegex: String, limit: Int) extends Actor with ActorLogging {
 
   implicit val timeout: Timeout = 5 seconds
-  lazy val auctionSearch = context.actorSelection(s"/user/${Conf.defaultAuctionSearchName}")
-  lazy val auctionsFutures: Future[List[ActorRef]] = (auctionSearch ? FindAuctions(auctionRegex)).mapTo[List[ActorRef]]
+  lazy val masterSearch = context.actorSelection(s"/user/${Conf.defaultMasterSearchName}")
+  lazy val auctionsFutures: Future[List[ActorRef]] = (masterSearch ? FindAuctions(auctionRegex)).mapTo[List[ActorRef]]
 
   override def preStart(): Unit = {
     val latency = random.nextInt(Conf.defaultBuyerLaziness)
